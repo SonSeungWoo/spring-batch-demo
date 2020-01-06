@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -83,17 +84,19 @@ public class InactiveOrderJobConfig {
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
+        logger.info("JpaPaging Reader End data : {}",jpaPagingItemReader.getPage());
         return jpaPagingItemReader;
     }
 
-    /*@Bean
+    @Bean
     @StepScope
     public QueueItemReader<Order> inactiveOrderReader() {
         logger.info("Reader Start");
         List<Order> oldUsers =
                 orderRepository.findAll();
+        logger.info("Reader End data : {}",oldUsers);
         return new QueueItemReader<>(oldUsers);
-    }*/
+    }
 
     /**
      * Processor(처리) 설정
