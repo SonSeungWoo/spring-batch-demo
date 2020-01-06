@@ -1,6 +1,5 @@
 package com.github.ssw.springbatchdemo;
 
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -59,9 +58,9 @@ public class InactiveOrderJobConfig {
                 .<Order, Order>chunk(10)
                 .faultTolerant()
                 .retryLimit(3).retry(Exception.class)
-                .reader(inactiveOrderReader())
+                .reader(inactiveOrderJpaReader())
                 .processor(inactiveOrderProcessor())
-                .writer(inactiveOrderWriter())
+                .writer(inactiveOrderJpaWriter())
                 .build();
     }
 
