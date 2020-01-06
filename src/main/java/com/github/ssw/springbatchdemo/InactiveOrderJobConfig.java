@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,9 @@ public class InactiveOrderJobConfig {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
     private static final int CHUNK_SIZE = 1000;
 
@@ -78,7 +82,7 @@ public class InactiveOrderJobConfig {
         return new QueueItemReader<>(oldUsers);
     }
 
-    @Bean(destroyMethod="")
+    @Bean
     @StepScope
     public JpaPagingItemReader<Order> inactiveOrderJpaReader() {
         JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<>();
@@ -88,7 +92,7 @@ public class InactiveOrderJobConfig {
         map.put("status", OrderStatus.REQUESTED);
 
         jpaPagingItemReader.setParameterValues(map);
-        //jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
+        jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
         return jpaPagingItemReader;
     }
@@ -114,9 +118,9 @@ public class InactiveOrderJobConfig {
     }
 
     private JpaItemWriter<Order> inactiveOrderJpaWriter() {
-        //JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
-        //jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
-        return new JpaItemWriter<>();
+        JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
+        jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
+        return jpaItemWriter;
     }
 
 }
