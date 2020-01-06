@@ -8,7 +8,6 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -35,7 +33,6 @@ public class InactiveOrderJobConfig {
     private static final int CHUNK_SIZE = 1000;
 
     /**
-     *
      * jop 설정
      *
      * @param jobBuilderFactory
@@ -75,16 +72,8 @@ public class InactiveOrderJobConfig {
      */
     @Bean
     @StepScope
-    public QueueItemReader<Order> inactiveOrderReader() {
-        logger.info("Reader Start");
-        List<Order> oldUsers =
-                orderRepository.findAll();
-        return new QueueItemReader<>(oldUsers);
-    }
-
-    @Bean
-    @StepScope
     public JpaPagingItemReader<Order> inactiveOrderJpaReader() {
+        logger.info("JpaPaging Reader Start");
         JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<>();
         jpaPagingItemReader.setQueryString("select o from Order as o where o.status = :status");
 
@@ -96,6 +85,15 @@ public class InactiveOrderJobConfig {
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
         return jpaPagingItemReader;
     }
+
+    /*@Bean
+    @StepScope
+    public QueueItemReader<Order> inactiveOrderReader() {
+        logger.info("Reader Start");
+        List<Order> oldUsers =
+                orderRepository.findAll();
+        return new QueueItemReader<>(oldUsers);
+    }*/
 
     /**
      * Processor(처리) 설정
@@ -112,15 +110,16 @@ public class InactiveOrderJobConfig {
      *
      * @return
      */
-    public ItemWriter<Order> inactiveOrderWriter() {
-        logger.info("Writer Start");
-        return ((List<? extends Order> orders) -> orderRepository.saveAll(orders));
-    }
-
     private JpaItemWriter<Order> inactiveOrderJpaWriter() {
+        logger.info("Jpa Writer Start");
         JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;
     }
+
+    /*public ItemWriter<Order> inactiveOrderWriter() {
+        logger.info("Writer Start");
+        return ((List<? extends Order> orders) -> orderRepository.saveAll(orders));
+    }*/
 
 }

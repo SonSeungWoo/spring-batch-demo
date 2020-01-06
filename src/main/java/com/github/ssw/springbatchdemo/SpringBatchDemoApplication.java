@@ -19,7 +19,7 @@ public class SpringBatchDemoApplication {
     @Bean
     CommandLineRunner commandLineRunner (OrderRepository orderRepository) {
         return args -> {
-            orderRepository.save(new Order(OrderStatus.COMPLETED));
+            orderRepository.save(new Order(OrderStatus.REQUESTED));
             List<Order> orders = orderRepository.findAll();
             System.out.println(orders);
         };
