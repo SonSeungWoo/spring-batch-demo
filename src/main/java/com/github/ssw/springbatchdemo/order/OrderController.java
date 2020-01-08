@@ -2,10 +2,9 @@ package com.github.ssw.springbatchdemo.order;
 
 import com.github.ssw.springbatchdemo.code.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,9 +18,10 @@ public class OrderController {
         return ResponseEntity.ok(orderRepository.findAll());
     }
 
-    @PostMapping("/order")
+    @PostMapping(value = "/order", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity saveOrder(){
         orderRepository.save(new Order(OrderStatus.REQUESTED));
+        orderRepository.save(new Order(OrderStatus.CANCELED));
         return ResponseEntity.ok("SUCCESS");
     }
 }

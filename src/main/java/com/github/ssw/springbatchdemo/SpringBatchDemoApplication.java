@@ -9,6 +9,7 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,8 +29,13 @@ public class SpringBatchDemoApplication {
     @Autowired
     private JobLauncher jobLauncher;
 
+    @Qualifier("orderJob")
     @Autowired
-    private Job job;
+    private Job orderJob;
+
+    @Qualifier("inactiveOrderJob")
+    @Autowired
+    private Job inactiveOrderJob;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringBatchDemoApplication.class, args);
@@ -46,13 +52,23 @@ public class SpringBatchDemoApplication {
         };
     }
 
-    @Scheduled(fixedDelay = 1000 * 60)
+    //@Scheduled(fixedDelay = 1000 * 60)
     public void perform() throws Exception {
         System.out.println("Start Scheduled");
         JobParameters params = new JobParametersBuilder()
                 .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
-        jobLauncher.run(job, params);
+        jobLauncher.run(inactiveOrderJob, params);
+        System.out.println("params : " + params);
+    }
+
+    @Scheduled(fixedDelay = 1000 * 30)
+    public void perform2() throws Exception {
+        System.out.println("Start Scheduled");
+        JobParameters params = new JobParametersBuilder()
+                .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
+                .toJobParameters();
+        jobLauncher.run(orderJob, params);
         System.out.println("params : " + params);
     }
 }

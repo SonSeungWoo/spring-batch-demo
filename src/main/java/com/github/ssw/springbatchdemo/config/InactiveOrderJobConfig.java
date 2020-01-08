@@ -89,7 +89,7 @@ public class InactiveOrderJobConfig {
                 return 0;
             }
         };
-        jpaPagingItemReader.setQueryString("select o from Order as o where o.status = :status");
+        jpaPagingItemReader.setQueryString("select o from TB_ORDER as o where o.status = :status");
 
         Map<String, Object> map = new HashMap<>();
         map.put("status", OrderStatus.REQUESTED);

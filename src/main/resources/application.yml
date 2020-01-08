@@ -6,9 +6,13 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: update
+  datasource:
+    url: jdbc:h2:mem:test_db
+    driver-class-name: org.h2.Driver
 
 logging:
   level:
     org.hibernate.type: info
+
 
 spring.batch.job.names: ${job.name:NONE}
