@@ -25,7 +25,7 @@ import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_N
 
 
 @Configuration
-//@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME)
+@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME, matchIfMissing = true)
 public class InactiveOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(InactiveOrderJobConfig.class);
