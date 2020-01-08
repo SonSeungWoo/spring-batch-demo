@@ -1,5 +1,7 @@
-package com.github.ssw.springbatchdemo;
+package com.github.ssw.springbatchdemo.config;
 
+import com.github.ssw.springbatchdemo.code.OrderStatus;
+import com.github.ssw.springbatchdemo.order.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -11,7 +13,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,22 +21,24 @@ import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.ssw.springbatchdemo.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
 
 
 @Configuration
-@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME)
+//@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME)
 public class InactiveOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(InactiveOrderJobConfig.class);
 
-    @Autowired
-    private EntityManagerFactory entityManagerFactory;
-
-    private static final int CHUNK_SIZE = 20;
+    private static final int CHUNK_SIZE = 10;
 
     public static final String JOB_NAME = "inactiveOrderJob";
 
+    private final EntityManagerFactory entityManagerFactory;
+
+    public InactiveOrderJobConfig(EntityManagerFactory entityManagerFactory){
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     /**
      * jop 설정
@@ -78,7 +81,7 @@ public class InactiveOrderJobConfig {
     @Bean
     @StepScope
     public JpaPagingItemReader<Order> inactiveOrderReader() {
-        logger.info("--Reader Start--");
+        logger.info("Reader Start");
         JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<>();
         jpaPagingItemReader.setQueryString("select o from Order as o where o.status = :status");
 
@@ -88,7 +91,7 @@ public class InactiveOrderJobConfig {
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
-        logger.info("--Reader End data : {}--",jpaPagingItemReader.getPage());
+        logger.info("Reader End data : {}",jpaPagingItemReader.getPage());
         return jpaPagingItemReader;
     }
 
@@ -98,7 +101,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     public ItemProcessor<Order, Order> inactiveOrderProcessor() {
-        logger.info("--Processor Start--");
+        logger.info("Processor Start");
         return order -> order.updateStatus();
     }
 
@@ -108,7 +111,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     private JpaItemWriter<Order> inactiveOrderWriter() {
-        logger.info("--Writer Start--");
+        logger.info("Writer Start");
         JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;

@@ -1,4 +1,6 @@
-package com.github.ssw.springbatchdemo;
+package com.github.ssw.springbatchdemo.order;
+
+import com.github.ssw.springbatchdemo.code.OrderStatus;
 
 import javax.persistence.*;
 

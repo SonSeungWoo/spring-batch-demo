@@ -1,4 +1,4 @@
-package com.github.ssw.springbatchdemo;
+package com.github.ssw.springbatchdemo.code;
 
 public enum OrderStatus {
     REQUESTED("001"),

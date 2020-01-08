@@ -1,5 +1,8 @@
 package com.github.ssw.springbatchdemo;
 
+import com.github.ssw.springbatchdemo.code.OrderStatus;
+import com.github.ssw.springbatchdemo.order.Order;
+import com.github.ssw.springbatchdemo.order.OrderRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -15,7 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 
-import static com.github.ssw.springbatchdemo.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
 
 @EnableBatchProcessing
 @EnableScheduling
@@ -35,7 +38,7 @@ public class SpringBatchDemoApplication {
     @Bean
     CommandLineRunner commandLineRunner (OrderRepository orderRepository) {
         return args -> {
-            for (long i = 0; i < 30; i++) {
+            for (long i = 0; i < 10; i++) {
                 orderRepository.save(new Order(OrderStatus.REQUESTED));
             }
             List<Order> orders = orderRepository.findAll();

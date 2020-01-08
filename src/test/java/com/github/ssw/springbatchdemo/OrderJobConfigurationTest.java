@@ -1,5 +1,8 @@
 package com.github.ssw.springbatchdemo;
 
+import com.github.ssw.springbatchdemo.code.OrderStatus;
+import com.github.ssw.springbatchdemo.order.Order;
+import com.github.ssw.springbatchdemo.order.OrderRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -10,14 +13,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static com.github.ssw.springbatchdemo.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource(properties = {"job.name=" + JOB_NAME})
-public class JobConfigurationTest {
+public class OrderJobConfigurationTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -37,6 +40,6 @@ public class JobConfigurationTest {
 
         //then
         assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
-        //assertThat(orderRepository.findAll().size(), is(30));
+        assertThat(orderRepository.findAll().size(), is(20));
     }
 }
