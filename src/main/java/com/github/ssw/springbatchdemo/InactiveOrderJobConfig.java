@@ -10,28 +10,32 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.github.ssw.springbatchdemo.InactiveOrderJobConfig.JOB_NAME;
 
 
 @Configuration
+@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME)
 public class InactiveOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(InactiveOrderJobConfig.class);
 
     @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
     private EntityManagerFactory entityManagerFactory;
 
-    private static final int CHUNK_SIZE = 1000;
+    private static final int CHUNK_SIZE = 20;
+
+    public static final String JOB_NAME = "inactiveOrderJob";
+
 
     /**
      * jop 설정
@@ -42,9 +46,9 @@ public class InactiveOrderJobConfig {
      */
     @Bean
     public Job inactiveOrderJob(JobBuilderFactory jobBuilderFactory, Step inactiveJobStep) {
-        return jobBuilderFactory.get("inactiveOrderJob")
-                .preventRestart() //(2)
-                .start(inactiveJobStep) //(3)
+        return jobBuilderFactory.get(JOB_NAME)
+                .preventRestart()
+                .start(inactiveJobStep)
                 .build();
     }
 
@@ -57,12 +61,12 @@ public class InactiveOrderJobConfig {
     @Bean
     public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("inactiveOrderStep")
-                .<Order, Order>chunk(10)
+                .<Order, Order>chunk(CHUNK_SIZE)
                 .faultTolerant()
                 .retryLimit(3).retry(Exception.class)
-                .reader(inactiveOrderJpaReader())
+                .reader(inactiveOrderReader())
                 .processor(inactiveOrderProcessor())
-                .writer(inactiveOrderJpaWriter())
+                .writer(inactiveOrderWriter())
                 .build();
     }
 
@@ -73,8 +77,8 @@ public class InactiveOrderJobConfig {
      */
     @Bean
     @StepScope
-    public JpaPagingItemReader<Order> inactiveOrderJpaReader() {
-        logger.info("JpaPaging Reader Start");
+    public JpaPagingItemReader<Order> inactiveOrderReader() {
+        logger.info("--Reader Start--");
         JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<>();
         jpaPagingItemReader.setQueryString("select o from Order as o where o.status = :status");
 
@@ -84,18 +88,8 @@ public class InactiveOrderJobConfig {
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
-        logger.info("JpaPaging Reader End data : {}",jpaPagingItemReader.getPage());
+        logger.info("--Reader End data : {}--",jpaPagingItemReader.getPage());
         return jpaPagingItemReader;
-    }
-
-    @Bean
-    @StepScope
-    public QueueItemReader<Order> inactiveOrderReader() {
-        logger.info("Reader Start");
-        List<Order> oldUsers =
-                orderRepository.findAll();
-        logger.info("Reader End data : {}",oldUsers);
-        return new QueueItemReader<>(oldUsers);
     }
 
     /**
@@ -104,7 +98,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     public ItemProcessor<Order, Order> inactiveOrderProcessor() {
-        logger.info("Processor Start");
+        logger.info("--Processor Start--");
         return order -> order.updateStatus();
     }
 
@@ -113,16 +107,15 @@ public class InactiveOrderJobConfig {
      *
      * @return
      */
-    private JpaItemWriter<Order> inactiveOrderJpaWriter() {
-        logger.info("Jpa Writer Start");
+    private JpaItemWriter<Order> inactiveOrderWriter() {
+        logger.info("--Writer Start--");
         JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;
     }
 
-    /*public ItemWriter<Order> inactiveOrderWriter() {
-        logger.info("Writer Start");
-        return ((List<? extends Order> orders) -> orderRepository.saveAll(orders));
-    }*/
-
+    @Bean
+    public JobLauncherTestUtils jobLauncherTestUtils() {
+        return new JobLauncherTestUtils();
+    }
 }
