@@ -82,7 +82,13 @@ public class InactiveOrderJobConfig {
     @StepScope
     public JpaPagingItemReader<Order> inactiveOrderReader() {
         logger.info("Reader Start");
-        JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<>();
+
+        JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<Order>() {
+            @Override
+            public int getPage() {
+                return 0;
+            }
+        };
         jpaPagingItemReader.setQueryString("select o from Order as o where o.status = :status");
 
         Map<String, Object> map = new HashMap<>();
@@ -91,7 +97,8 @@ public class InactiveOrderJobConfig {
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
-        logger.info("Reader End data : {}",jpaPagingItemReader.getPage());
+
+        logger.info("Reader End");
         return jpaPagingItemReader;
     }
 

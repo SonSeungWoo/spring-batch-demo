@@ -31,7 +31,7 @@ public class OrderJobConfigurationTest {
     @Test
     public void 주문상태변경테스트() throws Exception {
         //given
-        for (long i = 0; i < 10; i++) {
+        for (long i = 0; i < 200; i++) {
             orderRepository.save(new Order(OrderStatus.REQUESTED));
         }
 
@@ -40,6 +40,6 @@ public class OrderJobConfigurationTest {
 
         //then
         assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
-        assertThat(orderRepository.findAll().size(), is(20));
+        assertThat(orderRepository.findAll().size(), is(210));
     }
 }
