@@ -32,9 +32,9 @@ public class JobScheduled {
         this.inactiveOrderJob = inactiveOrderJob;
     }
 
-    //@Scheduled(fixedDelay = 1000 * 30)
+    @Scheduled(fixedDelay = 1000 * 30)
     public void executeInactiveOrderJob() {
-        System.out.println("InactiveOrderJob Start Scheduled");
+        logger.info("################### InactiveOrderJob Start Scheduled");
         JobParameters params = new JobParametersBuilder()
                 .addString(InactiveOrderJobConfig.JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
@@ -46,9 +46,9 @@ public class JobScheduled {
         }
     }
 
-    //@Scheduled(fixedDelay = 1000 * 60)
+    @Scheduled(fixedDelay = 1000 * 60)
     public void executeOrderJob() {
-        System.out.println("OrderJob Start Scheduled");
+        logger.info("################### OrderJob Start Scheduled");
         JobParameters params = new JobParametersBuilder()
                 .addString(CursorOrderJobConfig.JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
