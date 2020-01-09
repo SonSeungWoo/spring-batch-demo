@@ -32,7 +32,7 @@ public class JobScheduled {
         this.inactiveOrderJob = inactiveOrderJob;
     }
 
-    @Scheduled(fixedDelay = 1000 * 30)
+    //@Scheduled(cron = "*/30 * * * * *")
     public void executeInactiveOrderJob() {
         logger.info("################### InactiveOrderJob Start Scheduled");
         JobParameters params = new JobParametersBuilder()
@@ -46,7 +46,7 @@ public class JobScheduled {
         }
     }
 
-    @Scheduled(fixedDelay = 1000 * 60)
+    //@Scheduled(cron = "*/50 * * * * *")
     public void executeOrderJob() {
         logger.info("################### OrderJob Start Scheduled");
         JobParameters params = new JobParametersBuilder()
