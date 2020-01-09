@@ -13,6 +13,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,13 +22,11 @@ import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
-
 /**
  * 페이징 jop
  */
 @Configuration
-@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME, matchIfMissing = true)
+@ConditionalOnProperty(name = "job.name", havingValue = InactiveOrderJobConfig.JOB_NAME, matchIfMissing = true)
 public class InactiveOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(InactiveOrderJobConfig.class);
@@ -50,6 +49,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     @Bean
+    @Qualifier("inactiveOrderJob")
     public Job inactiveOrderJob(JobBuilderFactory jobBuilderFactory, Step inactiveJobStep) {
         return jobBuilderFactory.get(JOB_NAME)
                 .preventRestart()

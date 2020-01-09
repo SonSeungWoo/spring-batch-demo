@@ -11,6 +11,7 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,13 +21,12 @@ public class JobScheduled {
 
     private final JobLauncher jobLauncher;
 
-    @Qualifier("orderJob")
     private final Job orderJob;
 
-    @Qualifier("inactiveOrderJob")
     private final Job inactiveOrderJob;
 
-    public JobScheduled(JobLauncher jobLauncher, Job orderJob, Job inactiveOrderJob){
+    public JobScheduled(JobLauncher jobLauncher, @Qualifier("orderJob") Job orderJob,
+                        @Qualifier("inactiveOrderJob") Job inactiveOrderJob){
         this.jobLauncher = jobLauncher;
         this.orderJob = orderJob;
         this.inactiveOrderJob = inactiveOrderJob;

@@ -15,6 +15,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.HibernateCursorItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.HibernateCursorItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +26,11 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
-
 /**
  * 커서 job
  */
 @Configuration
-@ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME, matchIfMissing = true)
+@ConditionalOnProperty(name = "job.name", havingValue = CursorOrderJobConfig.JOB_NAME, matchIfMissing = true)
 public class CursorOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(CursorOrderJobConfig.class);
@@ -58,6 +57,7 @@ public class CursorOrderJobConfig {
 
     @Bean
     @Primary
+    @Qualifier("orderJob")
     public Job orderJob() {
         return jobBuilderFactory.get(JOB_NAME)
                 .start(orderStep())

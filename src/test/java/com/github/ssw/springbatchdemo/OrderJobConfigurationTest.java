@@ -1,5 +1,7 @@
 package com.github.ssw.springbatchdemo;
 
+import com.github.ssw.springbatchdemo.batch.CursorOrderJobConfig;
+import com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig;
 import com.github.ssw.springbatchdemo.code.OrderStatus;
 import com.github.ssw.springbatchdemo.order.Order;
 import com.github.ssw.springbatchdemo.order.OrderRepository;
@@ -13,13 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource(properties = {"job.name=" + JOB_NAME})
+@TestPropertySource(properties = {"job.name=" + CursorOrderJobConfig.JOB_NAME,
+                                  "job.name=" + InactiveOrderJobConfig.JOB_NAME})
 public class OrderJobConfigurationTest {
 
     @Autowired
