@@ -1,5 +1,8 @@
 package com.github.ssw.springbatchdemo.code;
 
+/**
+ * 주문상태
+ */
 public enum OrderStatus {
     REQUESTED("001"),
     COMPLETED("002"),

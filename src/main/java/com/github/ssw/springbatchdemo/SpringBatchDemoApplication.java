@@ -15,11 +15,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 
-import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
 
 @EnableBatchProcessing
 @EnableScheduling
@@ -53,22 +52,20 @@ public class SpringBatchDemoApplication {
     }
 
     //@Scheduled(fixedDelay = 1000 * 60)
-    public void perform() throws Exception {
+    public void pagingPerform() throws Exception {
         System.out.println("Start Scheduled");
         JobParameters params = new JobParametersBuilder()
                 .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
         jobLauncher.run(inactiveOrderJob, params);
-        System.out.println("params : " + params);
     }
 
-    @Scheduled(fixedDelay = 1000 * 30)
-    public void perform2() throws Exception {
+    //@Scheduled(fixedDelay = 1000 * 60)
+    public void cursortPerform() throws Exception {
         System.out.println("Start Scheduled");
         JobParameters params = new JobParametersBuilder()
                 .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
         jobLauncher.run(orderJob, params);
-        System.out.println("params : " + params);
     }
 }

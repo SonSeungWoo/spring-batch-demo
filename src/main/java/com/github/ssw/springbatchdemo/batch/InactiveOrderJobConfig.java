@@ -1,4 +1,4 @@
-package com.github.ssw.springbatchdemo.config;
+package com.github.ssw.springbatchdemo.batch;
 
 import com.github.ssw.springbatchdemo.code.OrderStatus;
 import com.github.ssw.springbatchdemo.order.Order;
@@ -21,9 +21,11 @@ import javax.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
 
-
+/**
+ * 페이징 jop
+ */
 @Configuration
 @ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME, matchIfMissing = true)
 public class InactiveOrderJobConfig {

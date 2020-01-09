@@ -1,6 +1,8 @@
-package com.github.ssw.springbatchdemo.config;
+package com.github.ssw.springbatchdemo.batch;
 
+import com.github.ssw.springbatchdemo.code.OrderStatus;
 import com.github.ssw.springbatchdemo.order.Order;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -10,20 +12,24 @@ import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.HibernateCursorItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.HibernateCursorItemReaderBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
 
+/**
+ * 커서 job
+ */
 @Configuration
 @ConditionalOnProperty(name = "job.name", havingValue = JOB_NAME, matchIfMissing = true)
 public class CursorOrderJobConfig {
@@ -42,7 +48,8 @@ public class CursorOrderJobConfig {
 
     private final DataSource dataSource;
 
-    public CursorOrderJobConfig(EntityManagerFactory entityManagerFactory, StepBuilderFactory stepBuilderFactory, JobBuilderFactory jobBuilderFactory, DataSource dataSource){
+    public CursorOrderJobConfig(EntityManagerFactory entityManagerFactory, StepBuilderFactory stepBuilderFactory,
+                                JobBuilderFactory jobBuilderFactory, DataSource dataSource){
         this.entityManagerFactory = entityManagerFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.jobBuilderFactory = jobBuilderFactory;
@@ -68,7 +75,7 @@ public class CursorOrderJobConfig {
                 .build();
     }
 
-    @Bean
+    /*@Bean
     @StepScope
     public JdbcCursorItemReader<Order> orderReader() {
         return new JdbcCursorItemReaderBuilder<Order>()
@@ -78,20 +85,52 @@ public class CursorOrderJobConfig {
                 .dataSource(dataSource)
                 .name("orderReader")
                 .build();
+    }*/
+
+    @Bean
+    @StepScope
+    public HibernateCursorItemReader orderReader() {
+        logger.info("Reader Start");
+
+        SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", OrderStatus.REQUESTED);
+
+        HibernateCursorItemReader<Order> builder = new HibernateCursorItemReaderBuilder<Order>()
+                .name("orderReader")
+                .sessionFactory(sessionFactory)
+                .queryString("FROM Order o where o.status = :status")
+                .parameterValues(map)
+                .fetchSize(CHUNK_SIZE)
+                .build();
+
+        logger.info("Reader End");
+        return builder;
     }
 
     @Bean
     @StepScope
     public ItemProcessor<Order, Order> orderProcessor() {
-        return order -> order.updateStatus();
+        return order -> {
+            logger.info("Processor Start order : {}", order);
+            order.updateStatus();
+            logger.info("Processor End order : {}", order);
+            return order;
+        };
     }
 
     @Bean
     @StepScope
     public JpaItemWriter<Order> writer() {
+        logger.info("Writer Start");
+
         JpaItemWriter<Order> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
+
+        logger.info("Writer End");
         return writer;
     }
+
 }
 

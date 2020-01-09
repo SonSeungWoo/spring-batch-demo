@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static com.github.ssw.springbatchdemo.config.InactiveOrderJobConfig.JOB_NAME;
+import static com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig.JOB_NAME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 

@@ -4,6 +4,9 @@ import com.github.ssw.springbatchdemo.code.OrderStatus;
 
 import javax.persistence.*;
 
+/**
+ * 주문정보
+ */
 @Table(name = "TB_ORDER")
 @Entity
 public class Order {
@@ -34,5 +37,13 @@ public class Order {
     public Order updateStatus() {
         this.status = OrderStatus.COMPLETED;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "no=" + no +
+                ", status=" + status +
+                '}';
     }
 }
