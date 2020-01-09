@@ -1,5 +1,7 @@
 package com.github.ssw.springbatchdemo;
 
+import com.github.ssw.springbatchdemo.batch.CursorOrderJobConfig;
+import com.github.ssw.springbatchdemo.batch.InactiveOrderJobConfig;
 import com.github.ssw.springbatchdemo.code.OrderStatus;
 import com.github.ssw.springbatchdemo.order.Order;
 import com.github.ssw.springbatchdemo.order.OrderRepository;
@@ -15,6 +17,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 
@@ -55,7 +58,7 @@ public class SpringBatchDemoApplication {
     public void pagingPerform() throws Exception {
         System.out.println("Start Scheduled");
         JobParameters params = new JobParametersBuilder()
-                .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
+                .addString(InactiveOrderJobConfig.JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
         jobLauncher.run(inactiveOrderJob, params);
     }
@@ -64,7 +67,7 @@ public class SpringBatchDemoApplication {
     public void cursortPerform() throws Exception {
         System.out.println("Start Scheduled");
         JobParameters params = new JobParametersBuilder()
-                .addString(JOB_NAME, String.valueOf(System.currentTimeMillis()))
+                .addString(CursorOrderJobConfig.JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
         jobLauncher.run(orderJob, params);
     }

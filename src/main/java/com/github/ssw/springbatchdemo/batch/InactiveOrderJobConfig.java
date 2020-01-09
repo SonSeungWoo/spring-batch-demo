@@ -32,7 +32,7 @@ public class InactiveOrderJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(InactiveOrderJobConfig.class);
 
-    private static final int CHUNK_SIZE = 10;
+    private static final int CHUNK_SIZE = 20;
 
     public static final String JOB_NAME = "inactiveOrderJob";
 
@@ -83,7 +83,7 @@ public class InactiveOrderJobConfig {
     @Bean
     @StepScope
     public JpaPagingItemReader<Order> inactiveOrderReader() {
-        logger.info("Reader Start");
+        logger.info("Paging Reader Start");
 
         JpaPagingItemReader<Order> jpaPagingItemReader = new JpaPagingItemReader<Order>() {
             @Override
@@ -91,16 +91,17 @@ public class InactiveOrderJobConfig {
                 return 0;
             }
         };
-        jpaPagingItemReader.setQueryString("select o from TB_ORDER as o where o.status = :status");
+
+        jpaPagingItemReader.setQueryString("select o from Order o where o.status = :status");
 
         Map<String, Object> map = new HashMap<>();
-        map.put("status", OrderStatus.REQUESTED);
+        map.put("status", OrderStatus.CANCELED);
 
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
 
-        logger.info("Reader End");
+        logger.info("Paging Reader End");
         return jpaPagingItemReader;
     }
 
@@ -110,7 +111,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     public ItemProcessor<Order, Order> inactiveOrderProcessor() {
-        logger.info("Processor Start");
+        logger.info("Paging Processor Start");
         return order -> order.updateStatus();
     }
 
@@ -120,7 +121,7 @@ public class InactiveOrderJobConfig {
      * @return
      */
     private JpaItemWriter<Order> inactiveOrderWriter() {
-        logger.info("Writer Start");
+        logger.info("Paging Writer Start");
         JpaItemWriter<Order> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;

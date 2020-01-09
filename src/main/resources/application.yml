@@ -9,10 +9,11 @@ spring:
   datasource:
     url: jdbc:h2:mem:test_db
     driver-class-name: org.h2.Driver
+  batch:
+    job:
+      enabled: true
+      names: ${job.name:NONE}
 
 logging:
   level:
     org.hibernate.type: info
-
-
-spring.batch.job.names: ${job.name:NONE}

@@ -51,7 +51,7 @@ public class QuartzJobLauncher extends QuartzJobBean {
      * job 실행
      */
     @Override
-    protected void executeInternal(JobExecutionContext arg0) {
+    protected void executeInternal(JobExecutionContext arg) {
         logger.info("########### QuartzJobLauncher Start ###########");
 
         JobParameters jobParameters = new JobParametersBuilder().addLong("time", System.currentTimeMillis()).toJobParameters();
