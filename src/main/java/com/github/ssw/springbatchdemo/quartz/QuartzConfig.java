@@ -30,6 +30,9 @@ public class QuartzConfig {
         this.jobLocator = jobLocator;
     }
 
+    /**
+     * job 등록
+     */
     @Bean
     public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor(JobRegistry jobRegistry) {
         JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor = new JobRegistryBeanPostProcessor();
@@ -38,6 +41,9 @@ public class QuartzConfig {
         return jobRegistryBeanPostProcessor;
     }
 
+    /**
+     * Batch job 테스크 연결 및 작업의 세부 속성
+     */
     @Bean
     public JobDetailFactoryBean jobDetailFactoryBean() {
         JobDetailFactoryBean jobDetailFactoryBean = new JobDetailFactoryBean();
@@ -52,16 +58,23 @@ public class QuartzConfig {
         return jobDetailFactoryBean;
     }
 
+    /**
+     *  트리거 설정
+     */
     @Bean
     public CronTriggerFactoryBean cronTriggerFactoryBean() {
         CronTriggerFactoryBean cronTriggerFactoryBean = new CronTriggerFactoryBean();
         cronTriggerFactoryBean.setJobDetail(jobDetailFactoryBean().getObject());
-        //run every 1 hour
-        cronTriggerFactoryBean.setCronExpression("0 0 0/1 * * ? *");
+        //run every 3 hour
+        cronTriggerFactoryBean.setCronExpression("0 0 0/3 * * ? *");
+        //cronTriggerFactoryBean.setCronExpression("*/50 * * * * ? *");
 
         return cronTriggerFactoryBean;
     }
 
+    /**
+     * 작업 및 트리거 등록
+     */
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();

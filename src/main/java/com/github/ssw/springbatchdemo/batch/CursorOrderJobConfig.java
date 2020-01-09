@@ -69,6 +69,8 @@ public class CursorOrderJobConfig {
     public Step orderStep() {
         return stepBuilderFactory.get("orderStep")
                 .<Order, Order>chunk(CHUNK_SIZE)
+                .faultTolerant()
+                .retryLimit(3).retry(Exception.class)
                 .reader(orderReader())
                 .processor(orderProcessor())
                 .writer(writer())

@@ -47,6 +47,9 @@ public class QuartzJobLauncher extends QuartzJobBean {
         this.jobLocator = jobLocator;
     }
 
+    /**
+     * job 실행
+     */
     @Override
     protected void executeInternal(JobExecutionContext arg0) {
         logger.info("########### QuartzJobLauncher Start ###########");
