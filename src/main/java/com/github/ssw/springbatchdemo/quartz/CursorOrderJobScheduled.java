@@ -13,17 +13,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderJobScheduled implements JobScheduled {
+public class CursorOrderJobScheduled implements JobScheduled {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrderJobScheduled.class);
+    private static final Logger logger = LoggerFactory.getLogger(CursorOrderJobScheduled.class);
 
     private final JobLauncher jobLauncher;
 
-    private final Job orderJob;
+    private final Job cursorOrderJob;
 
-    public OrderJobScheduled(JobLauncher jobLauncher, @Qualifier("orderJob") Job orderJob){
+    public CursorOrderJobScheduled(JobLauncher jobLauncher, @Qualifier("cursorOrderJob") Job cursorOrderJob){
         this.jobLauncher = jobLauncher;
-        this.orderJob = orderJob;
+        this.cursorOrderJob = cursorOrderJob;
     }
 
     @Scheduled(cron = "*/50 * * * * *")
@@ -34,7 +34,7 @@ public class OrderJobScheduled implements JobScheduled {
                 .addString(CursorOrderJobConfig.JOB_NAME, String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
         try {
-            JobExecution jobExecution = jobLauncher.run(orderJob, params);
+            JobExecution jobExecution = jobLauncher.run(cursorOrderJob, params);
             logger.info("OrderJob Status: {}", jobExecution.getStatus());
         }catch (Exception ex){
             logger.error(ex.getMessage());

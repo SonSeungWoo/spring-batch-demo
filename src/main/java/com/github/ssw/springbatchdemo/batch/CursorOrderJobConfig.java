@@ -57,23 +57,23 @@ public class CursorOrderJobConfig {
 
     @Bean
     @Primary
-    @Qualifier("orderJob")
-    public Job orderJob() {
+    @Qualifier("cursorOrderJob")
+    public Job cursorOrderJob() {
         return jobBuilderFactory.get(JOB_NAME)
-                .start(orderStep())
+                .start(cursorOrderStep())
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step orderStep() {
-        return stepBuilderFactory.get("orderStep")
+    public Step cursorOrderStep() {
+        return stepBuilderFactory.get("cursorOrderStep")
                 .<Order, Order>chunk(CHUNK_SIZE)
                 .faultTolerant()
                 .retryLimit(3).retry(Exception.class)
-                .reader(orderReader())
-                .processor(orderProcessor())
-                .writer(writer())
+                .reader(cursorOrderReader())
+                .processor(cursorOrderProcessor())
+                .writer(cursorOrderWriter())
                 .build();
     }
 
@@ -91,8 +91,8 @@ public class CursorOrderJobConfig {
 
     @Bean
     @StepScope
-    public HibernateCursorItemReader orderReader() {
-        logger.info("Reader Start");
+    public HibernateCursorItemReader cursorOrderReader() {
+        logger.info("Cursor Order Reader Start");
 
         SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
 
@@ -100,37 +100,37 @@ public class CursorOrderJobConfig {
         map.put("status", OrderStatus.REQUESTED);
 
         HibernateCursorItemReader<Order> builder = new HibernateCursorItemReaderBuilder<Order>()
-                .name("orderReader")
+                .name("cursorOrderReader")
                 .sessionFactory(sessionFactory)
                 .queryString("FROM Order o where o.status = :status")
                 .parameterValues(map)
                 .fetchSize(CHUNK_SIZE)
                 .build();
 
-        logger.info("Reader End");
+        logger.info("Cursor Order Reader End");
         return builder;
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<Order, Order> orderProcessor() {
+    public ItemProcessor<Order, Order> cursorOrderProcessor() {
         return order -> {
-            logger.info("Processor Start order : {}", order);
+            logger.info("Cursor Order Processor Start order : {}", order);
             order.updateStatus();
-            logger.info("Processor End order : {}", order);
+            logger.info("Cursor Order Processor End order : {}", order);
             return order;
         };
     }
 
     @Bean
     @StepScope
-    public JpaItemWriter<Order> writer() {
-        logger.info("Writer Start");
+    public JpaItemWriter<Order> cursorOrderWriter() {
+        logger.info("Cursor Order Writer Start");
 
         JpaItemWriter<Order> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
 
-        logger.info("Writer End");
+        logger.info("Cursor Order Writer End");
         return writer;
     }
 
