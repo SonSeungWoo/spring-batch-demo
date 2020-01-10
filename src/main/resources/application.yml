@@ -17,3 +17,4 @@ spring:
 logging:
   level:
     org.hibernate.type: info
+    org.springframework.batch: DEBUG
