@@ -13,13 +13,16 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.HibernateCursorItemReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.HibernateCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -48,7 +51,7 @@ public class CursorOrderJobConfig {
     private final DataSource dataSource;
 
     public CursorOrderJobConfig(EntityManagerFactory entityManagerFactory, StepBuilderFactory stepBuilderFactory,
-                                JobBuilderFactory jobBuilderFactory, DataSource dataSource){
+                                JobBuilderFactory jobBuilderFactory, DataSource dataSource) {
         this.entityManagerFactory = entityManagerFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.jobBuilderFactory = jobBuilderFactory;
@@ -71,23 +74,24 @@ public class CursorOrderJobConfig {
                 .<Order, Order>chunk(CHUNK_SIZE)
                 .faultTolerant()
                 .retryLimit(3).retry(Exception.class)
-                .reader(cursorOrderReader())
+                .reader(orderReader())
                 .processor(cursorOrderProcessor())
                 .writer(cursorOrderWriter())
                 .build();
     }
 
-    /*@Bean
+    @Bean
     @StepScope
     public JdbcCursorItemReader<Order> orderReader() {
         return new JdbcCursorItemReaderBuilder<Order>()
-                .sql("SELECT * FROM tb_order o")
+                .sql("SELECT * FROM tb_order o where o.status = ?")
+                .queryArguments(OrderStatus.REQUESTED.getCode())
                 .rowMapper(new BeanPropertyRowMapper<>(Order.class))
                 .fetchSize(CHUNK_SIZE)
                 .dataSource(dataSource)
                 .name("orderReader")
                 .build();
-    }*/
+    }
 
     @Bean
     @StepScope
@@ -98,10 +102,10 @@ public class CursorOrderJobConfig {
 
         Map<String, Object> map = new HashMap<>();
         map.put("status", OrderStatus.REQUESTED);
-
         HibernateCursorItemReader<Order> builder = new HibernateCursorItemReaderBuilder<Order>()
                 .name("cursorOrderReader")
                 .sessionFactory(sessionFactory)
+
                 .queryString("FROM Order o where o.status = :status")
                 .parameterValues(map)
                 .fetchSize(CHUNK_SIZE)
